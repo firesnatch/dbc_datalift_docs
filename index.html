@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DBC DataLift | Modernizing DB/C Access</title>
+    <style>
+      :root {
+        --bg: #0f172a;
+        --panel: #111827;
+        --panel-soft: #1f2937;
+        --ink: #e5eefb;
+        --muted: #9fb3d1;
+        --blue: #1d4ed8;
+        --blue-2: #2563eb;
+        --orange: #f59e0b;
+        --gold: #fbbf24;
+        --green: #34d399;
+        --red: #f87171;
+        --line: rgba(255,255,255,0.12);
+      }
+
+      * { box-sizing: border-box; }
+      html, body {
+        margin: 0;
+        height: 100%;
+        font-family: "Segoe UI", Arial, sans-serif;
+        background: linear-gradient(135deg, #08111f 0%, #0f172a 40%, #111827 100%);
+        color: var(--ink);
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+      }
+
+      .deck {
+        position: relative;
+        width: min(100vw, 1440px);
+        height: min(100vh, 900px);
+        padding: 26px;
+      }
+
+      .slide {
+        position: absolute;
+        inset: 26px;
+        display: none;
+        background: rgba(17, 24, 39, 0.9);
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        box-shadow: 0 24px 80px rgba(0,0,0,0.45);
+        overflow: hidden;
+      }
+
+      .slide.active {
+        display: block;
+      }
+
+      .content {
+        height: 100%;
+        padding: 52px 64px 42px;
+      }
+
+      .kicker {
+        color: var(--gold);
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        font-size: 0.82rem;
+        margin-bottom: 18px;
+      }
+
+      h1, h2, h3 {
+        margin: 0 0 18px;
+        line-height: 1.08;
+      }
+
+      h1 {
+        font-size: clamp(2.4rem, 4vw, 5rem);
+      }
+
+      h2 {
+        font-size: clamp(2rem, 2.5vw, 3rem);
+      }
+
+      h3 {
+        font-size: clamp(1.3rem, 1.8vw, 2rem);
+      }
+
+      p, li {
+        color: var(--ink);
+        font-size: clamp(1.02rem, 1.2vw, 1.35rem);
+        line-height: 1.55;
+      }
+
+      ul {
+        margin: 18px 0 0 22px;
+        padding: 0;
+      }
+
+      li + li { margin-top: 10px; }
+
+      .grid-2 {
+        display: grid;
+        grid-template-columns: 1.05fr 0.95fr;
+        gap: 30px;
+        height: calc(100% - 80px);
+      }
+
+      .grid-3 {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 22px;
+      }
+
+      .card {
+        background: rgba(255,255,255,0.03);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 18px 20px;
+      }
+
+      .metric {
+        font-size: clamp(2rem, 2.8vw, 3.2rem);
+        font-weight: 800;
+        color: var(--gold);
+        margin-bottom: 10px;
+      }
+
+      .muted {
+        color: var(--muted);
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 18px;
+        margin-bottom: 20px;
+      }
+
+      .brand img {
+        max-width: 220px;
+        max-height: 220px;
+        background: #ffffff;
+        padding: 10px 14px;
+        border-radius: 18px;
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
+      }
+
+      pre {
+        margin-top: 18px;
+        padding: 18px 20px;
+        border-radius: 14px;
+        border: 1px solid var(--line);
+        background: rgba(2, 6, 23, 0.9);
+        color: #dbeafe;
+        overflow: auto;
+        font-size: 0.82rem;
+        line-height: 1.5;
+      }
+
+      .intro-wrap {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        text-align: center;
+      }
+
+      .intro-wrap h1 {
+        font-size: clamp(3rem, 7vw, 7rem);
+        font-weight: 900;
+        letter-spacing: -0.05em;
+      }
+
+      .intro-wrap h2 {
+        font-size: clamp(1.2rem, 2vw, 2.2rem);
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      .spotlight {
+        color: var(--blue-2);
+      }
+
+      .callout {
+        background: rgba(29, 78, 216, 0.12);
+        border: 1px solid rgba(96, 165, 250, 0.3);
+        border-radius: 14px;
+        padding: 16px 18px;
+        color: var(--ink);
+      }
+
+      .image-frame {
+        width: 100%;
+        height: 100%;
+        border-radius: 16px;
+        overflow: hidden;
+        border: 1px solid var(--line);
+        background: rgba(255,255,255,0.03);
+      }
+
+      .image-frame img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        display: block;
+        background: #0b1020;
+      }
+
+      .table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+
+      .table th, .table td {
+        border: 1px solid var(--line);
+        padding: 12px 14px;
+        text-align: left;
+        vertical-align: top;
+      }
+
+      .table th {
+        background: rgba(255,255,255,0.04);
+        color: var(--gold);
+      }
+
+      .bad { color: var(--red); font-weight: 700; }
+      .good { color: var(--green); font-weight: 700; }
+
+      .mini-stack {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 12px;
+      }
+      .chip {
+        padding: 8px 12px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        background: rgba(255,255,255,0.03);
+        color: var(--ink);
+        font-size: 0.9rem;
+      }
+
+      .nav {
+        position: absolute;
+        right: 42px;
+        bottom: 20px;
+        z-index: 10;
+        display: flex;
+        gap: 12px;
+      }
+
+      button {
+        appearance: none;
+        border: 1px solid var(--line);
+        background: rgba(255,255,255,0.04);
+        color: var(--ink);
+        border-radius: 10px;
+        padding: 10px 16px;
+        font-size: 0.95rem;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background: rgba(255,255,255,0.08);
+      }
+
+      .page-indicator {
+        position: absolute;
+        left: 42px;
+        bottom: 22px;
+        color: var(--muted);
+        font-size: 0.9rem;
+        z-index: 10;
+      }
+
+      @media (max-width: 960px) {
+        .grid-2, .grid-3 {
+          grid-template-columns: 1fr;
+        }
+        .slide { inset: 12px; }
+        .content { padding: 34px 24px 52px; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="deck">
+      <section class="slide active">
+        <div class="content intro-wrap">
+          <div class="brand">
+            <img src="assets/logo2.png" alt="DBC DataLift logo" />
+          </div>
+          <h1><span class="spotlight">DBC</span> DataLift</h1>
+          <h2>Modern data access for legacy systems</h2>
+          <div class="callout" style="margin-top: 24px; max-width: 850px;">
+            A modern SQL-native solution designed to replace legacy DB/C FS constraints with a faster, more supportable, and more business-friendly architecture.
+          </div>
+        </div>
+      </section>
+
+      <section class="slide">
+        <div class="content">
+          <div class="kicker">Executive Summary</div>
+          <h2>DB/C FS was built for a different era.</h2>
+          <div class="grid-2" style="margin-top: 20px;">
+            <div>
+              <p>Many customers still depend on DB/C FS for access to fixed-length legacy files, but the product has become difficult to support, difficult to integrate, and difficult to use in modern reporting and analytics environments.</p>
+              <ul>
+                <li>Limited SQL support and weak modern interoperability</li>
+                <li>Legacy ODBC behavior not compatible with current BI tools</li>
+                <li>Operational risks from logging, index blind spots, and manual file maintenance</li>
+                <li>Performance degradation when reading larger result sets</li>
+              </ul>
+            </div>
+            <div class="card">
+              <div class="metric">DBC DataLift</div>
+              <p class="muted">A PostgreSQL-native, SQL-first access layer for DB/C data that delivers compatibility, transparency, and performance.</p>
+              <div class="mini-stack">
+                <span class="chip">SQL-native</span>
+                <span class="chip">Modern BI</span>
+                <span class="chip">Fast queries</span>
+                <span class="chip">Operational clarity</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide">
+        <div class="content">
+          <div class="kicker">The Problem</div>
+          <h2>Legacy DB/C FS limitations are now business blockers.</h2>
+          <table class="table">
+            <thead>
+              <tr>
+                <th>DB/C FS</th>
+                <th>Business Impact</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="bad">ODBC 2.0</span> and limited modern driver support</td>
+                <td>Incompatible with many modern BI and analytics tools.</td>
+              </tr>
+              <tr>
+                <td><span class="bad">Very limited subset of SQL</span>, especially outside narrow use cases</td>
+                <td>Developers must work around missing features and fragmented query logic.</td>
+              </tr>
+              <tr>
+                <td><span class="bad">Large result sets hang or fail</span></td>
+                <td>Large extraction workloads are unreliable and can block operations.</td>
+              </tr>
+              <tr>
+                <td><span class="bad">No index visibility</span> for query tuning</td>
+                <td>Performance tuning is guesswork and query planning is opaque.</td>
+              </tr>
+              <tr>
+                <td><span class="bad">Abandoned and unsupported</span></td>
+                <td>Risk of unresolved defects, no roadmap, and uncertain future support.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="slide">
+        <div class="content">
+          <div class="kicker">Modern Solution</div>
+          <h2>DBC DataLift is designed for the modern data stack.</h2>
+          <div class="grid-2">
+            <div>
+              <ul>
+                <li>Native PostgreSQL access for DB/C fixed-length data</li>
+                <li>SQL-first querying with more predictable behavior</li>
+                <li>Supports modern BI and reporting tools including Power BI, Tableau, Metabase, Grafana, Superset, Jasper Reports, and Looker</li>
+                <li>Works with Python, JSON, ETL pipelines, and application scripting</li>
+                <li>Provides transparent execution plans and query optimization insight</li>
+              </ul>
+            </div>
+            <div class="image-frame">
+              <img src="assets/python_output.png" alt="JSON output from Python query" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide">
+        <div class="content">
+          <div class="kicker">Native Connector Advantage</div>
+          <h2>DBC DataLift provides a native and practical path for downstream tools.</h2>
+          <div class="grid-2">
+            <div>
+              <div class="callout">
+                Instead of being constrained to an old ODBC driver model, the solution can be queried directly in PostgreSQL and then consumed by modern tooling.
+              </div>
+              <ul>
+                <li>Python scripts can query data and return JSON for APIs and automation</li>
+                <li>Data can be filtered, analyzed, and exposed through standard PostgreSQL tooling</li>
+                <li>Works with business intelligence layer, reporting, and data integration pipelines</li>
+              </ul>
+            </div>
+            <div class="image-frame">
+              <img src="assets/python_test.png" alt="Python script example for DB/C access" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide">
+        <div class="content">
+          <div class="kicker">SQL capability</div>
+          <h2>What PostgreSQL adds beyond DB/C FS.</h2>
+          <div class="grid-2">
+            <div>
+              <p>DB/C FS is limited to a narrow subset of SQL. DBC DataLift runs on PostgreSQL, giving customers access to a far richer query model for reporting, integrations, and analytics.</p>
+              <ul>
+                <li><strong>Window functions</strong> such as ROW_NUMBER(), RANK(), and aggregate over partitions</li>
+                <li><strong>Common table expressions (CTEs)</strong> for readable multi-step queries and recursive logic</li>
+                <li><strong>Correlated subqueries and nested query patterns</strong> used in enterprise reporting</li>
+                <li><strong>CASE expressions and conditional logic</strong> for transformation and classification</li>
+                <li><strong>Analytic functions and advanced aggregations</strong> for modern business reporting</li>
+                <li><strong>JSON functions and PostgreSQL-native data shaping</strong> for Python, APIs, and integration workflows</li>
+                <li><strong>Advanced planner visibility with EXPLAIN</strong> to understand index usage and optimization decisions</li>
+                <li><strong>Standard PostgreSQL tooling and ecosystem compatibility</strong> across BI, ETL, scripting, and reporting tools</li>
+              </ul>
+            </div>
+            <div class="card">
+              <div class="metric">New capabilities</div>
+              <p class="muted">This is the practical gain: a query engine built for modern analytics, not just a legacy file-access layer.</p>
+              <div class="mini-stack">
+                <span class="chip">Window functions</span>
+                <span class="chip">CTEs</span>
+                <span class="chip">JSON</span>
+                <span class="chip">CASE</span>
+                <span class="chip">EXPLAIN</span>
+                <span class="chip">Analytics</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide">
+        <div class="content">
+          <div class="kicker">Performance</div>
+          <h2>Large datasets are not a failure mode with DBC DataLift.</h2>
+          <div class="grid-2" style="margin-top: 14px;">
+            <div>
+              <p>Based on the included benchmark data, DBC DataLift consistently outperforms DB/C FS for the same workload, and in the largest result-set cases the improvement can reach <strong>50x faster</strong> or more.</p>
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Query</th>
+                    <th>DBC DataLift</th>
+                    <th>DB/C FS</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Inventory filter + margin</td>
+                    <td>5,014 ms</td>
+                    <td>22,550 ms</td>
+                  </tr>
+                  <tr>
+                    <td>Source + line_number lookup</td>
+                    <td>6,794 ms</td>
+                    <td>138,212 ms</td>
+                  </tr>
+                  <tr>
+                    <td>Join on inventory + product</td>
+                    <td>2,767 ms</td>
+                    <td>138,379 ms</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="image-frame">
+              <img src="assets/FS_TEST1.png" alt="Performance comparison screenshot" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide">
+        <div class="content">
+          <div class="kicker">Query Transparency</div>
+          <h2>Real execution plans show exactly which indexes are being used.</h2>
+          <p>DB/C FS offers very little insight into how queries are being resolved. DBC DataLift is built for query visibility using PostgreSQL planning and the <strong>EXPLAIN</strong> statement.</p>
+          <div class="card" style="margin-top: 18px;">
+            <p><strong>Example query:</strong> a join between <em>im_0001</em> and <em>pm_0001</em> with indexed access on both tables.</p>
+            <pre>EXPLAIN (FORMAT JSON, VERBOSE, COSTS OFF)
+SELECT i.reference, p.product
+FROM im_0001 i
+JOIN pm_0001 p ON i.product = p.product
+WHERE i.source = 'PO'
+  AND i.reference = '00001WW3'
+  AND p.description = 'BANANAS'
+  AND p.product = 'BANANA-001';
+
+Foreign Scan: im_0001
+DBC Access: index_prefix
+DBC Index: KEY1 (source, reference, line_number)
+DBC Key Prefix Count: 2
+
+Foreign Scan: pm_0001
+DBC Access: index_full_key
+DBC Index: KEY4 (description, product)
+DBC Key Prefix Count: 2</pre>
+            <p class="muted">This gives operators and developers a real, explainable path to performance tuning that DB/C FS simply does not provide.</p>
+          </div>
+          <div class="mini-stack" style="margin-top: 18px;">
+            <span class="chip">EXPLAIN</span>
+            <span class="chip">Index selection</span>
+            <span class="chip">Join planning</span>
+            <span class="chip">Operational tuning</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide">
+        <div class="content">
+          <div class="kicker">Operations & Logging</div>
+          <h2>DBC DataLift keeps operational visibility useful instead of overwhelming.</h2>
+          <div class="grid-2">
+            <div>
+              <ul>
+                <li><span class="bad">DB/C FS logging problem:</span> logs every row read, producing massive files in minutes.</li>
+                <li>Finding a small operational signal becomes a search across gigabytes of irrelevant data.</li>
+                <li><span class="good">DBC DataLift model:</span> standard PostgreSQL logging and structured query visibility.</li>
+                <li>Better signal-to-noise ratio for support, debugging, and performance analysis.</li>
+              </ul>
+            </div>
+            <div class="card">
+              <h3>Operational benefits</h3>
+              <ul>
+                <li>Understandable logs</li>
+                <li>Traceable queries</li>
+                <li>Cleaner support workflows</li>
+                <li>Less data-loss risk during troubleshooting</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide">
+        <div class="content">
+          <div class="kicker">Data File Maintenance</div>
+          <h2>Customers should not be forced into brittle, manual steps.</h2>
+          <ul>
+            <li>DB/C FS requires Database Definition File generation when data files expand. Missing the step can push access offline.</li>
+            <li>DBC DataLift reads and uses .DEF files more dynamically and can detect/act on structure changes.</li>
+            <li>This reduces operator burden and decreases the chance of a silent disruption.</li>
+            <li>It is a better fit for environments where files change over time and need easy maintenance.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="slide">
+        <div class="content">
+          <div class="kicker">Support & Roadmap</div>
+          <h2>DBC DataLift is a forward-looking product, not an abandoned legacy stack.</h2>
+          <ul>
+            <li>DB/C FS is no longer meaningfully supported and has been effectively abandoned in practice.</li>
+            <li>DBC DataLift is built for ongoing support, bug fixes, and feature additions.</li>
+            <li>Partner-led deployment and resale model fits a modern support structure.</li>
+            <li>Customers get better odds of long-term maintainability and roadmap continuity.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="slide">
+        <div class="content">
+          <div class="kicker">Why DBC DataLift Wins</div>
+          <h2>Modern replacement for a legacy dependency.</h2>
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Capability</th>
+                <th>DBC DataLift</th>
+                <th>DB/C FS</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>SQL access</td>
+                <td><span class="good">Modern SQL-first</span></td>
+                <td><span class="bad">Very limited</span></td>
+              </tr>
+              <tr>
+                <td>BI / reporting</td>
+                <td><span class="good">PostgreSQL-native and broadly compatible</span></td>
+                <td><span class="bad">Legacy ODBC constraints</span></td>
+              </tr>
+              <tr>
+                <td>Large dataset reads</td>
+                <td><span class="good">High-throughput access</span></td>
+                <td><span class="bad">Slow, unreliable, hangs</span></td>
+              </tr>
+              <tr>
+                <td>Query transparency</td>
+                <td><span class="good">EXPLAIN and index visibility</span></td>
+                <td><span class="bad">Little insight</span></td>
+              </tr>
+              <tr>
+                <td>Support posture</td>
+                <td><span class="good">Active roadmap and releases</span></td>
+                <td><span class="bad">Abandoned</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="slide">
+        <div class="content intro-wrap">
+          <div class="brand">
+            <img src="assets/logo2.png" alt="DBC DataLift logo" />
+          </div>
+          <h1>Ready for the next generation of data access.</h1>
+          <div class="callout" style="max-width: 800px; margin-top: 20px;">
+            DBC DataLift modernizes DB/C file access with SQL-native performance, operational clarity, and long-term support — without the constraints of legacy DB/C FS.
+          </div>
+          <div class="mini-stack" style="justify-content: center; margin-top: 22px;">
+            <span class="chip">Faster queries</span>
+            <span class="chip">Modern tools</span>
+            <span class="chip">Lower operational risk</span>
+            <span class="chip">Partner-ready platform</span>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="page-indicator" id="page-indicator">1 / 13</div>
+    <div class="nav">
+      <button id="prev">Previous</button>
+      <button id="next">Next</button>
+    </div>
+
+    <script>
+      const slides = Array.from(document.querySelectorAll('.slide'));
+      let current = 0;
+
+      function renderSlide() {
+        slides.forEach((slide, index) => slide.classList.toggle('active', index === current));
+        document.getElementById('page-indicator').textContent = `${current + 1} / ${slides.length}`;
+      }
+
+      document.getElementById('next').addEventListener('click', () => {
+        current = (current + 1) % slides.length;
+        renderSlide();
+      });
+
+      document.getElementById('prev').addEventListener('click', () => {
+        current = (current - 1 + slides.length) % slides.length;
+        renderSlide();
+      });
+
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'ArrowRight' || event.key === 'PageDown' || event.key === ' ') {
+          current = (current + 1) % slides.length;
+          renderSlide();
+        }
+        if (event.key === 'ArrowLeft' || event.key === 'PageUp') {
+          current = (current - 1 + slides.length) % slides.length;
+          renderSlide();
+        }
+      });
+
+      renderSlide();
+    </script>
+  </body>
+</html>
