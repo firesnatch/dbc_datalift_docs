@@ -221,8 +221,8 @@ DBC_DEF_DIRS="/ppro/src/pdfp:/opt/customer/defs"
   - DEF names are normalized case-insensitively; first discovered file name wins if duplicates exist across folders.
   - If no DEF targets can be paired with data files, sync fails with a non-zero status.
 - When to change it:
-  - Set it whenever DEF files live outside `/ppro/src/pdfp`.
-  - Include multiple folders when running phased migrations across old/new DEF repositories.
+  - Set it whenever you want to include other DEF files that live outside `/ppro/src/pdfp`. For example, accounting data in `/ppro/src/arfp`.
+  - When you are working on a copied system.  For example `/ppro/copies/test/src/pdfp`.
 
 #### `DBC_DEF_FILES`
 
